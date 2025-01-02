@@ -60,7 +60,6 @@ const Verify = () => {
                   />
                 </FormControl>
                 <FormMessage className="text-xs text-red-500" />
-                tailwindcss-animate
               </FormItem>
             )}
           />
