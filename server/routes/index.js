@@ -1,4 +1,5 @@
 const authController = require('../controller/auth');
+const userController = require('../controller/user');
 
 const router = require('express').Router();
 
@@ -10,9 +11,8 @@ router.group('/auth', route => {
 });
 
 router.group('/user', route => {
-  route.get('/contacts', (req, res) => {
-    res.send({ contacts: [] });
-  });
+  route.get('/messages/:contactId', userController.getMessages);
+  route.post('/create-message', userController.createMessage);
 });
 
 module.exports = router;
