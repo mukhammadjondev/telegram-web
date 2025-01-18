@@ -21,17 +21,24 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { otpSchema, type OtpSchema } from '@/lib/validation';
+import { useVerify } from '../_hooks/useVerify';
+import { signIn } from 'next-auth/react';
+import { toast } from '@/hooks/use-toast';
 
 const Verify = () => {
   const { email } = useAuth();
+  const { verify, isPending } = useVerify();
 
   const form = useForm<OtpSchema>({
     resolver: zodResolver(otpSchema),
-    defaultValues: { email, otp: '	' },
+    defaultValues: { email, otp: '' },
   });
 
   function onSubmit(values: OtpSchema) {
-    console.log(values);
+    verify(values).then(({ user }) => {
+      signIn('credentials', { email: user.email, callbackUrl: '/' });
+      toast({ description: 'Successfully verified' });
+    });
   }
 
   return (
@@ -74,7 +81,7 @@ const Verify = () => {
                     maxLength={6}
                     className="w-full"
                     pattern={REGEXP_ONLY_DIGITS}
-                    // disabled={isPending}
+                    disabled={isPending}
                     {...field}
                   >
                     <InputOTPGroup className="w-full ">
@@ -95,7 +102,6 @@ const Verify = () => {
                     <InputOTPGroup className="w-full ">
                       <InputOTPSlot
                         index={3}
-                        tailwindcss-animate
                         className="w-full dark:bg-primary-foreground bg-secondary"
                       />
                       <InputOTPSlot
@@ -118,7 +124,7 @@ const Verify = () => {
             type="submit"
             className="w-full"
             size="lg"
-            // disabled={isPending}
+            disabled={isPending}
           >
             Submit
           </Button>

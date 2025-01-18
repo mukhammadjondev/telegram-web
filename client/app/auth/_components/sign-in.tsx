@@ -1,9 +1,9 @@
-import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { useAuth } from '@/hooks/use-auth';
 
+import { toast } from '@/hooks/use-toast';
 import {
   Form,
   FormControl,
@@ -15,9 +15,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { emailSchema, type EmailSchema } from '@/lib/validation';
+import { useSignIn } from '../_hooks/useSignIn';
 
 const SignIn = () => {
   const { onChangeEmail, onChangeStep } = useAuth();
+  const { signIn, isPending } = useSignIn();
 
   const form = useForm<EmailSchema>({
     resolver: zodResolver(emailSchema),
@@ -25,7 +27,11 @@ const SignIn = () => {
   });
 
   function onSubmit(values: EmailSchema) {
-    console.log(values)
+    signIn(values.email).then(res => {
+      onChangeEmail(res.email);
+      onChangeStep('verify');
+      toast({ description: 'Email sent' });
+    });
   }
 
   return (
@@ -45,7 +51,7 @@ const SignIn = () => {
                 <FormControl>
                   <Input
                     placeholder="info@gmail.com"
-                    // disabled={isPending}
+                    disabled={isPending}
                     className="h-10 bg-secondary"
                     {...field}
                   />
@@ -58,7 +64,7 @@ const SignIn = () => {
             type="submit"
             className="w-full"
             size="lg"
-            // disabled={isPending}
+            disabled={isPending}
           >
             Submit
           </Button>
