@@ -1,80 +1,54 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useSession } from 'next-auth/react';
 
+import { useUpdateProfile } from '@/modules/profile/hooks/useUpdateProfile';
 import { ProfileSchema, profileSchema } from '@/lib/validation';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '../ui/form';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Textarea } from '../ui/textarea';
-import { Button } from '../ui/button';
+import { Form } from '../ui/form';
+import { TextAreaField, TextField } from '../fields';
+import { LoadingButton } from '../loading-button';
 
 const InformationForm = () => {
+  const { data: session } = useSession();
+  const { updateProfile, isPending } = useUpdateProfile();
+
   const form = useForm<ProfileSchema>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      firstName: '',
-      lastName: '',
-      bio: '',
+      firstName: session?.currentUser?.firstName || '',
+      lastName: session?.currentUser?.lastName || '',
+      bio: session?.currentUser?.bio || '',
     },
   });
 
-  const onSubmit = (values: ProfileSchema) => {};
+  const onSubmit = (values: ProfileSchema) => {
+    updateProfile(values);
+  };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-        <FormField
-          control={form.control}
+        <TextField
           name="firstName"
-          render={({ field }) => (
-            <FormItem>
-              <Label>First name</Label>
-              <FormControl>
-                <Input placeholder="Oman" className="bg-secondary" {...field} />
-              </FormControl>
-              <FormMessage className="text-xs text-red-500" />
-            </FormItem>
-          )}
+          label="First name"
+          placeholder="Osman"
+          className="bg-secondary"
         />
-        <FormField
-          control={form.control}
+        <TextField
           name="lastName"
-          render={({ field }) => (
-            <FormItem>
-              <Label>Last name</Label>
-              <FormControl>
-                <Input placeholder="Ali" className="bg-secondary" {...field} />
-              </FormControl>
-            </FormItem>
-          )}
+          label="Last name"
+          placeholder="Ali"
+          className="bg-secondary"
         />
-        <FormField
-          control={form.control}
+        <TextAreaField
           name="bio"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Bio</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Enter anyhting about yourself"
-                  className="bg-secondary"
-                  {...field}
-                />
-              </FormControl>
-            </FormItem>
-          )}
+          label="Bio"
+          placeholder="Enter anyhting about yourself"
+          className="bg-secondary"
         />
-        <Button type="submit" className="w-full">
+        <LoadingButton className="w-full" isLoading={isPending}>
           Submit
-        </Button>
+        </LoadingButton>
       </form>
     </Form>
   );

@@ -1,5 +1,6 @@
 const authController = require('../controller/auth');
 const userController = require('../controller/user');
+const authMiddelware = require('../middlewares/auth');
 
 const router = require('express').Router();
 
@@ -20,7 +21,7 @@ router.group('/user', route => {
   route.post('/contact', userController.createContact);
   route.post('/reaction', userController.createReaction);
 
-  route.put('/profile', userController.updateProfile);
+  route.put('/profile', authMiddelware, userController.updateProfile);
   route.put('/email', userController.updateEmail);
   route.put('/message/:messageId', userController.updateMessage);
 
